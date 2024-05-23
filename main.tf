@@ -5,7 +5,6 @@ locals {
   bucket_acl_enabled = var.bucket_acl == "" ? false : true
   bucket_acl         = local.bucket_acl_enabled ? var.bucket_acl : null
 
-  public_access_block_enabled = var.block_public_acls || var.block_public_policy || var.ignore_public_acls || var.restrict_public_buckets
   bucket_policy_enabled       = var.bucket_policy == "" ? false : true
   lifecycle_rules_enabled     = length(var.lifecycle_rules) == 0 ? false : true
 
@@ -122,7 +121,6 @@ resource "aws_s3_bucket_acl" "this" {
 }
 
 resource "aws_s3_bucket_public_access_block" "this" {
-  count  = tobool(local.public_access_block_enabled) ? 1 : 0
   bucket = var.bucket_name
 
   block_public_acls       = var.block_public_acls
