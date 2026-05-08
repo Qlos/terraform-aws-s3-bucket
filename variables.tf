@@ -177,3 +177,15 @@ variable "tags" {
   default     = {}
   description = "Map of tags to assign to bucket."
 }
+
+variable "cors_rules" {
+  type = list(object({
+    allowed_headers = optional(list(string), [])
+    allowed_methods = list(string)
+    allowed_origins = list(string)
+    expose_headers  = optional(list(string), [])
+    max_age_seconds = optional(number, 3000)
+  }))
+  default     = []
+  description = "List of CORS rules for the bucket."
+}
