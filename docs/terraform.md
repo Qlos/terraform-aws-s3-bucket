@@ -64,4 +64,41 @@ No modules.
 | <a name="output_bucket_regional_domain_name"></a> [bucket\_regional\_domain\_name](#output\_bucket\_regional\_domain\_name) | The region-specific domain name of the bucket. |
 | <a name="output_id"></a> [id](#output\_id) | The name of the bucket. |
 
+
+### CORS Configuration
+
+To enable Cross-Origin Resource Sharing (CORS) on the S3 bucket, use the `cors_rules` variable. All fields except `allowed_methods` and `allowed_origins` are optional.
+
+#### Example - Basic CORS configuration:
+
+```hcl
+cors_rules = [
+  {
+    allowed_methods = ["GET", "HEAD"]
+    allowed_origins = ["*"]
+  }
+]
+```
+
+#### Example - Full CORS configuration:
+
+```hcl
+cors_rules = [
+  {
+    allowed_methods = ["GET", "PUT", "POST"]
+    allowed_origins = ["https://example.com", "https://app.example.com"]
+    allowed_headers = ["*"]
+    expose_headers  = ["ETag", "x-amz-version-id"]
+    max_age_seconds = 3000
+  }
+]
+```
+
+#### Field descriptions:
+
+- `allowed_methods` (required): HTTP methods to allow. Valid values: GET, PUT, POST, DELETE, HEAD
+- `allowed_origins` (required): Origins that are allowed to make requests to the bucket
+- `allowed_headers` (optional): Headers that are allowed in preflight requests. Default: `[]`
+- `expose_headers` (optional): Headers that can be exposed to the client. Default: `[]`
+- `max_age_seconds` (optional): How long the browser can cache preflight responses in seconds. Default: `3000`
 <!-- END_TF_DOCS -->
