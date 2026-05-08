@@ -20,6 +20,7 @@ No modules.
 |------|------|
 | [aws_s3_bucket.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket) | resource |
 | [aws_s3_bucket_acl.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_acl) | resource |
+| [aws_s3_bucket_cors_configuration.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_cors_configuration) | resource |
 | [aws_s3_bucket_lifecycle_configuration.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_lifecycle_configuration) | resource |
 | [aws_s3_bucket_ownership_controls.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_ownership_controls) | resource |
 | [aws_s3_bucket_policy.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_policy) | resource |
@@ -41,6 +42,7 @@ No modules.
 | <a name="input_bucket_name"></a> [bucket\_name](#input\_bucket\_name) | Name of the bucket. If omitted, Terraform will assign a random, unique name. | `string` | n/a | yes |
 | <a name="input_bucket_object_ownership"></a> [bucket\_object\_ownership](#input\_bucket\_object\_ownership) | Specifies the S3 object ownership control.<br>Valid values are `ObjectWriter`, `BucketOwnerPreferred`, and 'BucketOwnerEnforced'.<br>'BucketOwnerEnforced': ACLs are disabled, and the bucket owner automatically owns and has full control over every object in the bucket.<br>'BucketOwnerPreferred': Objects uploaded to the bucket change ownership to the bucket owner if the objects are uploaded with the bucket-owner-full-control canned ACL.<br>'ObjectWriter': The uploading account will own the object if the object is uploaded with the bucket-owner-full-control canned ACL.<br>Defaults to "ObjectWriter" for backwards compatibility, but we recommend setting "BucketOwnerEnforced" instead. | `string` | `"ObjectWriter"` | no |
 | <a name="input_bucket_policy"></a> [bucket\_policy](#input\_bucket\_policy) | A bucket policy in JSON format | `string` | `""` | no |
+| <a name="input_cors_rules"></a> [cors\_rules](#input\_cors\_rules) | List of CORS rules for the bucket. Each rule requires `allowed_methods` and `allowed_origins`. Optional fields: `allowed_headers` (default: `[]`), `expose_headers` (default: `[]`), `max_age_seconds` (default: `3000`).<br>Example:<pre>[<br>  {<br>    allowed_methods = ["GET", "HEAD"]<br>    allowed_origins = ["*"]<br>  },<br>  {<br>    allowed_methods = ["GET", "PUT", "POST"]<br>    allowed_origins = ["https://example.com"]<br>    allowed_headers = ["*"]<br>    expose_headers  = ["ETag"]<br>    max_age_seconds = 3000<br>  }<br>]</pre> | <pre>list(object({<br>  allowed_headers = optional(list(string), [])<br>  allowed_methods = list(string)<br>  allowed_origins = list(string)<br>  expose_headers  = optional(list(string), [])<br>  max_age_seconds = optional(number, 3000)<br>}))</pre> | `[]` | no |
 | <a name="input_encryption_enabled"></a> [encryption\_enabled](#input\_encryption\_enabled) | Boolean to enable server-side encryption for S3 bucket. | `bool` | `false` | no |
 | <a name="input_encryption_master_kms_key"></a> [encryption\_master\_kms\_key](#input\_encryption\_master\_kms\_key) | AWS KMS master key ID used for the SSE-KMS encryption. This can only be used when you set the value of `encryption_sse_algorithm` as `aws:kms`<br>When empty in use is default aws/s3 AWS KMS master key provided by AWS. | `string` | `""` | no |
 | <a name="input_encryption_sse_algorithm"></a> [encryption\_sse\_algorithm](#input\_encryption\_sse\_algorithm) | server-side encryption algorithm to use. Valid values are `AES256` and `aws:kms` | `string` | `"AES256"` | no |
@@ -64,41 +66,4 @@ No modules.
 | <a name="output_bucket_regional_domain_name"></a> [bucket\_regional\_domain\_name](#output\_bucket\_regional\_domain\_name) | The region-specific domain name of the bucket. |
 | <a name="output_id"></a> [id](#output\_id) | The name of the bucket. |
 
-
-### CORS Configuration
-
-To enable Cross-Origin Resource Sharing (CORS) on the S3 bucket, use the `cors_rules` variable. All fields except `allowed_methods` and `allowed_origins` are optional.
-
-#### Example - Basic CORS configuration:
-
-```hcl
-cors_rules = [
-  {
-    allowed_methods = ["GET", "HEAD"]
-    allowed_origins = ["*"]
-  }
-]
-```
-
-#### Example - Full CORS configuration:
-
-```hcl
-cors_rules = [
-  {
-    allowed_methods = ["GET", "PUT", "POST"]
-    allowed_origins = ["https://example.com", "https://app.example.com"]
-    allowed_headers = ["*"]
-    expose_headers  = ["ETag", "x-amz-version-id"]
-    max_age_seconds = 3000
-  }
-]
-```
-
-#### Field descriptions:
-
-- `allowed_methods` (required): HTTP methods to allow. Valid values: GET, PUT, POST, DELETE, HEAD
-- `allowed_origins` (required): Origins that are allowed to make requests to the bucket
-- `allowed_headers` (optional): Headers that are allowed in preflight requests. Default: `[]`
-- `expose_headers` (optional): Headers that can be exposed to the client. Default: `[]`
-- `max_age_seconds` (optional): How long the browser can cache preflight responses in seconds. Default: `3000`
 <!-- END_TF_DOCS -->
