@@ -5,6 +5,7 @@ locals {
   bucket_acl_enabled = var.bucket_acl == "" ? false : true
   bucket_acl         = local.bucket_acl_enabled ? var.bucket_acl : null
 
+  public_access_block_enabled = var.block_public_acls || var.block_public_policy || var.ignore_public_acls || var.restrict_public_buckets
   bucket_policy_enabled       = var.bucket_policy == "" ? false : true
   lifecycle_rules_enabled     = length(var.lifecycle_rules) == 0 ? false : true
 
@@ -121,6 +122,7 @@ resource "aws_s3_bucket_acl" "this" {
 }
 
 resource "aws_s3_bucket_public_access_block" "this" {
+  count  = tobool(local.public_access_block_enabled) ? 1 : 0
   bucket = var.bucket_name
 
   block_public_acls       = var.block_public_acls
@@ -269,4 +271,23 @@ resource "time_sleep" "wait_for_aws_s3_bucket_settings" {
   depends_on       = [aws_s3_bucket_public_access_block.this, aws_s3_bucket_policy.this]
   create_duration  = "30s"
   destroy_duration = "30s"
+}
+
+resource "aws_s3_bucket_cors_configuration" "this" {
+  count  = length(var.cors_rules) > 0 ? 1 : 0
+  bucket = var.bucket_name
+
+  dynamic "cors_rule" {
+    for_each = var.cors_rules
+
+    content {
+      allowed_headers = cors_rule.value.allowed_headers
+      allowed_methods = cors_rule.value.allowed_methods
+      allowed_origins = cors_rule.value.allowed_origins
+      expose_headers  = cors_rule.value.expose_headers
+      max_age_seconds = cors_rule.value.max_age_seconds
+    }
+  }
+
+  depends_on = [aws_s3_bucket.this]
 }
